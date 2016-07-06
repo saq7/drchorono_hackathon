@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from . import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^drchrono_auth/', include('drchrono_auth.urls'))
+    url(r'^$', views.index, name='drchrono_auth/index'),
+    url(r'^redirect', views.redirect, name='drchrono_auth/redirect'),
 ]
