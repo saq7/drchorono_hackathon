@@ -61,7 +61,7 @@ def redirect(request):
 
         # add the access_token to the session, don't need refresh_token
         request.session[
-            'drchrono_access_token'] = token_dict.get('access_token')
+            'access_token'] = token_dict.get('access_token')
 
         # get the user from db or create in db
         user = get_drchrono_user(request)
