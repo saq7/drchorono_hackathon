@@ -30,43 +30,98 @@ def index(request):
     # use the drchrono_auth_service to come up with
     # the redirect url with the required scopes
 
+    # get the referer_view and encode in the state param
+    referer_view = get_referer_view(request, default='/')
+    state = {'referer_view': referer_view}
+    state = base64.b64encode(json.dumps(state))
+
+    # get the scopes
     scopes = request.GET.get('scopes')  # is a string
     params = {'redirect_uri': redirect_uri,
               'response_type': 'code',
+              'state': state,
               'scopes': scopes}
     drchrono_redirect_url = drchrono_auth_service.get_authorize_url(**params)
     return redirect(drchrono_redirect_url)
 
 
 def redirect(request):
-    # this is the view that will be called by the
-    # drchrono api when it redirects the user
+    # TODO: add a ton of exception handling here
 
-    # first get the code
-    # create a dict with the request params
-    # use the dict in a call to requests.post(token_url, dict)
-    # save the return in response
-    # call data = response.json
-    # data should look like this
-    # data = {'acces_token' : "fdhjkdfd",
-    #         'refresh_token' : "fkjgfdlkj",
-    #         'expires_in' : num_of_seconds
-    #         .... misc keys and values}
-    # once all of these are here and they work
-    # save them in the database for the user who authorized
+    state = request.GET.get('state')
+    state = base64.b64decode(state)
+    state = json.loads(state)
+    referer_view = state['referer_view']
 
-    code = request.GET.get('code')
-    data = {
-        'code': code,
-        'grant_type': 'authorization_code',
-        'redirect_uri': redirect_uri,
-        'client_id': client_id,
-        'client_secret': client_secret
-    }
-    response = requests.post(access_token_url, data=data)
-    #resp_data = response.json()
-    return HttpResponse(response)
+    if request.GET.get('error'):
+        return redirect(referer_view)
+    else:
+        code = request.GET.get('code')
+        token_dict = drchrono_auth_service.get_raw_access_token(
+            data={'code': code,
+                  'redirect_uri': redirect_uri,
+                  'grant_type': 'authorization_code'})
+        token_dict = token_dict.json()
 
+        request.session[
+            'drchrono_access_token'] = token_dict.get('access_token')
+        request.session[
+            'drchrono_refresh_token'] = token_dict.get('refresh_token')
+        user = get_drchrono_user(request)
+        # TODO: fortify the authentication backend being used
+        user = authenticate(username=user.username,
+                            token='currently, this token will always work')
+        login(request, user)
+        return redirect(referer_view)
+
+
+# def redirect(request):
+#     # this is the view that will be called by the
+#     # drchrono api when it redirects the user
+
+#     # first get the code
+#     # create a dict with the request params
+#     # use the dict in a call to requests.post(token_url, dict)
+#     # save the return in response
+#     # call data = response.json
+#     # data should look like this
+#     # data = {'acces_token' : "fdhjkdfd",
+#     #         'refresh_token' : "fkjgfdlkj",
+#     #         'expires_in' : num_of_seconds
+#     #         .... misc keys and values}
+#     # once all of these are here and they work
+#     # save them in the database for the user who authorized
+
+#     if request.GET.get('error'):
+
+#     code = request.GET.get('code')
+#     data = {
+#         'code': code,
+#         'grant_type': 'authorization_code',
+#         'redirect_uri': redirect_uri,
+#         'client_id': client_id,
+#         'client_secret': client_secret
+#     }
+#     response = requests.post(access_token_url, data=data)
+#     response = response.json()
+
+#     return HttpResponse(response)
+
+
+# def my_view(request):
+#     username = request.POST['username']
+#     password = request.POST['password']
+#     user = authenticate(username=username, password=password)
+#     if user is not None:
+#         if user.is_active:
+#             login(request, user)
+#             # Redirect to a success page.
+#         else:
+#             # Return a 'disabled account' error message
+#             ...
+#     else:
+#         # Return an 'invalid login' error message.
+#         ...
 
 # # rauth tutorial
 # # params = {'redirect_uri': 'http://example.co',
