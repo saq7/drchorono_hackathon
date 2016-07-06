@@ -17,6 +17,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
+    url(r'^', include('patienteducator.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^drchrono_auth/', include('drchrono_auth.urls'))
+    url(r'^drchrono_login/', include('drchrono_auth.urls')),
+    url(r'^patienteducator/', include('patienteducator.urls'))
 ]

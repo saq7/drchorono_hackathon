@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<link rel="stylesheet" href="style.css" />
+	<title>{% block title %}Saquib's drChrono Hackathon{% endblock %}</title>
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+	{% load bootstrap3 %}
+	{% load bootstrap_themes %}	
+	{% load bootstrap_themes %}
+	{% bootstrap_styles theme='simplex' type='min.css' %}
+	{% bootstrap_script use_min=True %}
+    </head>
+
+    <body>
+	{% block nav %}
+	<nav class="navbar navbar-default">
+	    <div class="container-fluid">
+		<div class="navbar-header">
+		    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bsnavbar-collapse-1">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		    </button>
+		    <a class="navbar-brand" href="#">drchrono saquib PatientEducator</a>
+		</div>
+
+		<div class="collapse navbar-collapse pull-right" id="bs-navbar-collapse-1">
+		    <ul class="nav navbar-nav">
+			{% if user.is_authenticated %}
+			<li class="navbar-text">Welcome, {{user.first_name}}</li>
+			<li><a class="navbar-link text-muted" href="/drchrono_login/logout">
+			    Logout
+			</a></li>
+			{% else %}
+  			<li><a class="navbar-link" href="/drchrono_login/">
+			    Login with DrChrono
+			</a></li>
+			{% endif %}
+		    </ul>
+		</div>
+	    </div>
+	</nav>
+	{% endblock nav %}	
+	<!-- <div id="sidebar">
+             {% block sidebar %}
+             <ul>
+	     <li><a href="/">Home</a></li>
+	     <li><a href="/blog/">Blog</a></li>
+             </ul>
+             {% endblock %}
+	     </div>
+	   -->
+	<div id="content">
+            {% block content %}{% endblock %}
+	</div>
+    </body>
+</html>

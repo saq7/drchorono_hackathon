@@ -18,7 +18,5 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index),
-    url(r'^redirect', views.redirect),
-    url(r'^logout', views.drchrono_auth_logout)
+    url(r'^$', views.index)
 ]

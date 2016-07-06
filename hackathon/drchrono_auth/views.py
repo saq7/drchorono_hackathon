@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
-from rauth import OAuth2Service
-from django.http import HttpResponse
+import base64
+import json
 import requests
-# Create your views here.
+from rauth import OAuth2Service
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from helpers import get_referer_view, get_drchrono_user
+from django.contrib.auth import authenticate, login, logout
+
 
 # TODO: move these variables to env vars
 client_id = 'JnXV8j2AF8S88MCcF8jcI0bRDIJM61MYBNDsKapl'
@@ -10,7 +14,7 @@ client_secret = 'kdbkci6ksn88Pnn8yeC2E5lPLks0CoT5VcGEP2h7h4d50YcueDioKdeqSc6Tm5C
 access_token_url = 'https://drchrono.com/o/token/'
 authorize_url = 'https://drchrono.com/o/authorize/'
 drchrono_base_url = 'https://drchrono.com/api/'
-redirect_uri = 'http://127.0.0.1:8000/drchrono_auth/redirect'
+redirect_uri = 'http://127.0.0.1:8000/drchrono_login/redirect'
 
 # TODO: move this to services.py
 drchrono_auth_service = OAuth2Service(
@@ -35,7 +39,10 @@ def index(request):
               'state': state,
               'scopes': scopes}
     drchrono_redirect_url = drchrono_auth_service.get_authorize_url(**params)
-    return redirect(drchrono_redirect_url)
+    return HttpResponseRedirect(drchrono_redirect_url)
+
+
+# TODO: redirect function too long. refactor
 
 
 def redirect(request):
@@ -48,7 +55,8 @@ def redirect(request):
     if request.GET.get('error'):
         # if authentication error from drchrono
         # redirect back referer view
-        return redirect(referer_view)
+        pass
+
     else:
         # if authorization succeeded
         # get the access_token
@@ -71,4 +79,10 @@ def redirect(request):
         user = authenticate(username=user.username,
                             token='currently, this token will always work')
         login(request, user)
-        return redirect(referer_view)
+
+    return HttpResponseRedirect(referer_view)
+
+
+def drchrono_auth_logout(request):
+    logout(request)
+    return render(request, 'base.html')  # HACK!

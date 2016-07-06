@@ -24,7 +24,7 @@ def get_drchrono_user(request):
     uri = 'https://drchrono.com/api/users/current'
     # TODO: move the uri above to a centralized location of api strings
     response = requests.get(uri, headers={
-        'Authorization': 'Bearer %s' % request.session['drchrono_access_token'],
+        'Authorization': 'Bearer %s' % request.session['access_token'],
     })
     user_data = response.json()
 
@@ -32,7 +32,7 @@ def get_drchrono_user(request):
     doctor_uri = user_data['doctor']
     uri = 'https://drchrono.com/api/doctors/' + str(doctor_uri)
     response = requests.get(uri, headers={
-        'Authorization': 'Bearer %s' % request.session['drchrono_access_token'],
+        'Authorization': 'Bearer %s' % request.session['access_token'],
     })
     doctor_data = response.json()
 
