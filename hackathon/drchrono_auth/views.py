@@ -46,8 +46,6 @@ def index(request):
 
 
 def redirect(request):
-    # TODO: add a ton of exception handling here
-
     state = request.GET.get('state')
     state = base64.b64decode(state)
     state = json.loads(state)
