@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-	<link rel="stylesheet" href="style.css" />
 	<title>{% block title %}Saquib's drChrono Hackathon{% endblock %}</title>
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
 	{% load bootstrap3 %}
 	{% load bootstrap_themes %}	
 	{% load bootstrap_themes %}
-	{% bootstrap_styles theme='simplex' type='min.css' %}
+	{% bootstrap_styles theme='spacelab' type='min.css' %}
 	{% bootstrap_script use_min=True %}
     </head>
 
@@ -42,15 +41,6 @@
 	    </div>
 	</nav>
 	{% endblock nav %}	
-	<!-- <div id="sidebar">
-             {% block sidebar %}
-             <ul>
-	     <li><a href="/">Home</a></li>
-	     <li><a href="/blog/">Blog</a></li>
-             </ul>
-             {% endblock %}
-	     </div>
-	   -->
 	<div id="content">
             {% block content %}{% endblock %}
 	</div>

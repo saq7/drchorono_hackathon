@@ -85,4 +85,4 @@ def redirect(request):
 
 def drchrono_auth_logout(request):
     logout(request)
-    return render(request, 'base.html')  # HACK!
+    return render(request, 'patienteducator/index.html')  # HACK!

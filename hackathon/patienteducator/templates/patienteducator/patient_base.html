@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav>
+    <ul class="pager">
+	<li class="previous">
+	    <a href="/">Back to Appointments</a>
+	</li>
+    </ul>
+</nav>
+
+{% block shareableuri %} {% endblock %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+	<div id="upload">
+	    {% block upload %}{% endblock %}
+	</div>
+	<div clas="panel panel-default">
+	    <div class="panel-heading">
+		<div class="panel-title text-center">
+		    {% block welcome_message %}{% endblock %}
+		</div>
+	    </div> <!-- panel-heading -->
+	    <div class="panel-body">
+		<ul class="list-group">
+		    {% for doc in documents %}
+		    <li class="list-group-item text-center">
+			<a href ="/media/user_{{doc.user_id}}/patient_{{doc.patient_id}}/{{doc.name}}">
+			    {{ doc.name }}
+			</a>
+		    </li>
+		    {% endfor %}
+		</ul>	
+	    </div> <!-- panel-body -->
+	</div> <!-- panel panel-default -->
+    </div> <!-- col-md-6 col-md-offset-3 -->
+</div> <!-- row -->
+
+
+{% endblock content %}

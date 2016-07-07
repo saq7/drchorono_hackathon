@@ -1,6 +1,7 @@
 import re
 import requests
 from django.contrib.auth.models import User
+#from patienteducator.models import Doctor
 
 
 def get_referer_view(request, default=None):
@@ -35,7 +36,7 @@ def get_drchrono_user(request):
         'Authorization': 'Bearer %s' % request.session['access_token'],
     })
     doctor_data = response.json()
-
+    request.session['doctor_data'] = doctor_data
     # retrieve/create user from/in database
     try:
         user = User.objects.get(username=user_data['username'])

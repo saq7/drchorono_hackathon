@@ -16,7 +16,14 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from . import views
+from hackathon import settings
 
 urlpatterns = [
-    url(r'^$', views.index)
+    url(r'^$', views.index),
+    url(r'^patient/([0-9]+)/documents', views.patient_documents),
+    url(r'^patient_share/user/([0-9]+)/patient/([0-9]+)',
+        views.share_documents),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+        'document_root': settings.MEDIA_ROOT,
+    }),
 ]
