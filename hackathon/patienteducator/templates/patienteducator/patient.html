@@ -9,17 +9,29 @@ Currently Sharing with {{patient.name}}
 
 <script src="https://rawgit.com/enyo/dropzone/master/dist/dropzone.js"></script>
 <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
+<script>
+ $(document).ready(function() {
+     Dropzone.options.docFileDropzone = {
+	 paramName: "docfile", // The name that will be used to transfer the file
+	 success: function(file, response){
+	     document.open();
+	     document.write(response);
+	     document.close();
+	 }
+     }     
+ })
+</script>
 
 
 <div class="row text-center">
     <div class="col-md-6 col-md-offset-3">
 	<div class="panel panel-default">
-	    <form  action="{{ request_path }}" method="post" enctype="multipart/form-data">
-		<!-- <form class="dropzone" action="{{request.path}}"> -->
+	    <!-- <form  action="{{ request.path }}" method="post" enctype="multipart/form-data"> -->
+	    <form class="dropzone" action="{{request.path}}" id="docFileDropzone">
 		{% csrf_token %}
-		{{ form.docfile }}
+		<!-- {{ form.docfile }} -->
 		</p>
-		<p><input type="submit" value="Upload" /></p>
+		<!-- <p><input type="submit" value="Upload" /></p> -->
 		<p>{{ form.docfile.help_text }}</p>
 	    </form>
 	</div> <!-- panel panel-default -->
@@ -31,9 +43,10 @@ Currently Sharing with {{patient.name}}
 {% block shareableuri %}
 <p class="ribbon">
     <strong class="ribbon-content">
-	Shareable url: <span i><em>{{shortened_url}}</em></span>
+	Shareable url: <span i><em>{{url_to_share}}</em></span>
     </strong>
 </p>
+
 
 <style>
  .ribbon {

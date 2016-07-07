@@ -30,8 +30,15 @@ def patient_documents(request, patient_id):
     # Handle file upload
     if request.method == 'POST':
         form = EducationalDocumentForm(request.POST, request.FILES)
+        print request.POST
+        print '\n\n\n\n\n\n\n'
+        print request.FILES
+
         if form.is_valid():
+            print "FORM IS VALID"
+            print request.FILES
             doc = Document(docfile=request.FILES['docfile'])
+            print doc.__dict__
             doc.patient = patient
             doc.user = request.user
             doc.save()
@@ -57,7 +64,7 @@ def patient_documents(request, patient_id):
                   {'documents': documents,
                    'form': form,
                    'patient': patient,
-                   'shortened_url': url_to_share})
+                   'url_to_share': url_to_share})
 
 
 def share_documents(request, user_id, patient_id):
