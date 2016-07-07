@@ -9,7 +9,6 @@ from forms import EducationalDocumentForm
 from helpers import get_appointments
 from helpers import create_appt_dict
 from helpers import get_bitly_url
-from urlparse import urlparse
 
 
 def index(request):
@@ -19,7 +18,8 @@ def index(request):
         )
         appointments = create_appt_dict(appointments)
         return render(request, 'patienteducator/index.html',
-                      {'appointments': appointments})
+                      {'appointments': appointments},
+                      )
     else:
         return render(request, 'patienteducator/index.html')
 
@@ -30,34 +30,15 @@ def patient_documents(request, patient_id):
     # Handle file upload
     if request.method == 'POST':
         form = EducationalDocumentForm(request.POST, request.FILES)
-        print request.POST
-        print '\n\n\n\n\n\n\n'
-        print request.FILES
-
         if form.is_valid():
-            print "FORM IS VALID"
-            print request.FILES
             doc = Document(docfile=request.FILES['docfile'])
-            print doc.__dict__
             doc.patient = patient
             doc.user = request.user
             doc.save()
 
     form = EducationalDocumentForm()  # An empty, unbound form
-    # bitly does not shorten localhost links
-    parsed_url = urlparse(request.build_absolute_uri())
-    longurl = parsed_url.scheme + '://' + parsed_url.netloc
-    longurl += '/patient_share/user/' + str(user.id) + '/patient/' + patient_id
-    shortened_url = get_bitly_url(
-        longurl,
-        user,
-        patient
-    )
-    if shortened_url:
-        url_to_share = shortened_url
-    else:
-        url_to_share = longurl
 
+    url_to_share = get_bitly_url(request, user, patient)
     # Load documents for the list page
     documents = Document.objects.filter(user=user, patient=patient)
     return render(request, 'patienteducator/patient.html',
@@ -68,9 +49,6 @@ def patient_documents(request, patient_id):
 
 
 def share_documents(request, user_id, patient_id):
-    # when a patient goes to this view, they are
-    # able to see whatever their doctor uploaded
-    # url: /user/:id/patient/:id
     docfiles = Document.objects.filter(
         user_id=user_id, patient_id=patient_id)
     patient = Patient.objects.get(id=patient_id)

@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta
 import requests
 import urllib
-
+from urlparse import urlparse
 from models import Patient
 from models import UserPatientDocsURL
 
@@ -74,24 +74,26 @@ def get_patient(appt):
     return p
 
 
-def get_bitly_url(long_url, user, patient):
+def get_bitly_url(request, user, patient):
     # TODO: move bitly_token and bitly_base to env vars
-    shortened_url = None
     try:
         url = UserPatientDocsURL.objects.get(
             user=user, patient=patient)
         return url.shortened_url
     except UserPatientDocsURL.DoesNotExist:
-        # make api call
+        parsed_url = urlparse(request.build_absolute_uri())
+        longurl = parsed_url.scheme + '://' + parsed_url.netloc
+        longurl += '/patient_share/user/' + \
+            str(user.id) + '/patient/' + str(patient.id)
         bitly_token = 'ffe71e89efdbfbb4d03a4995a7910cd4e8416ba7'
         bitly_base = 'https://api-ssl.bitly.com/v3/shorten'
-        shortened_url = requests.get(bitly_base, params={
+        response = requests.get(bitly_base, params={
             'access_token': bitly_token,
-            'longUrl': urllib.quote(long_url, safe=''),
+            'longUrl': urllib.quote(longurl, safe=''),
             'format': 'json'
         }).json()
-        if shortened_url['status_code'] != 200:
-            return None
+        if response['status_code'] != 200:
+            return longurl
         else:
             shortened_url = shortened_url['data']
             UserPatientDocsURL(
@@ -99,4 +101,4 @@ def get_bitly_url(long_url, user, patient):
                 patient=patient,
                 shortened_url=shortened_url
             ).save()
-        return shortened_url
+            return shortened_url
