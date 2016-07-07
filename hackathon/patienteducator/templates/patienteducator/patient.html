@@ -14,6 +14,7 @@ Currently Sharing with {{patient.name}}
      Dropzone.options.docFileDropzone = {
 	 paramName: "docfile", // The name that will be used to transfer the file
 	 success: function(file, response){
+	     // render the new response
 	     document.open();
 	     document.write(response);
 	     document.close();
