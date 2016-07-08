@@ -27,12 +27,8 @@ Currently Sharing with {{patient.name}}
 <div class="row text-center">
     <div class="col-md-6 col-md-offset-3">
 	<div class="panel panel-default">
-	    <!-- <form  action="{{ request.path }}" method="post" enctype="multipart/form-data"> -->
 	    <form class="dropzone" action="{{request.path}}" id="docFileDropzone">
 		{% csrf_token %}
-		<!-- {{ form.docfile }} -->
-		</p>
-		<!-- <p><input type="submit" value="Upload" /></p> -->
 		<p>{{ form.docfile.help_text }}</p>
 	    </form>
 	</div> <!-- panel panel-default -->

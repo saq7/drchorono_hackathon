@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from models import Patient, Document
 from forms import EducationalDocumentForm
 from helpers import get_appointments
-from helpers import create_appt_dict
+from helpers import create_appt_dict_for_user
 from helpers import get_bitly_url
 
 
@@ -16,7 +16,12 @@ def index(request):
         appointments = get_appointments(
             request.session['access_token']
         )
-        appointments = create_appt_dict(appointments)
+        appointments = create_appt_dict_for_user(
+            appointments,
+            request.user,
+            request.session[
+                'access_token']
+        )
         return render(request, 'patienteducator/index.html',
                       {'appointments': appointments},
                       )
@@ -51,7 +56,7 @@ def patient_documents(request, patient_id):
 def share_documents(request, user_id, patient_id):
     docfiles = Document.objects.filter(
         user_id=user_id, patient_id=patient_id)
-    patient = Patient.objects.get(id=patient_id)
+    patient = Patient.objects.get(id=patient_id, user_id=user_id)
     return render(request, 'patienteducator/patient_share.html',
                   {'documents': docfiles,
                    'patient': patient})

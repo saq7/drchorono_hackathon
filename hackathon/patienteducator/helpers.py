@@ -8,12 +8,13 @@ from models import UserPatientDocsURL
 
 # TODO: move to env var
 drchrono_base_url = 'https://drchrono.com/api'
+patients_url = '/patients'
 
 
 def get_appointments(access_token):
     today = date.today()
     yesterday = str(today - timedelta(days=1))
-    tomorrow = str(today + timedelta(days=1))
+    tomorrow = str(today + timedelta(days=2))
     appt_range = yesterday + '/' + tomorrow
     appointments_url = drchrono_base_url + '/appointments'
     appointments = []
@@ -28,10 +29,11 @@ def get_appointments(access_token):
     return appointments
 
 
-def create_appt_dict(appointments):
-    appt_dict = {'today': [], 'yesterday': [], 'tomorrow': []}
+def create_appt_dict_for_user(appointments, user, access_token):
+    appt_dict = {'today': [], 'yesterday': [],
+                 'tomorrow': [], 'day_after_tomorrow': []}
     for appt in appointments:
-        patient = get_patient(appt)
+        patient = get_patient_for_user(appt, user, access_token)
         appt_time = appt['scheduled_time']
         appt_time = datetime.strptime(appt_time, '%Y-%m-%dT%H:%M:%S')
         day = which_day(appt_time)
@@ -46,19 +48,20 @@ def which_day(_datetime):
         return 'yesterday'
     if _datetime.date() == date.today() + timedelta(days=1):
         return 'tomorrow'
+    if _datetime.date() == date.today() + timedelta(days=2):
+        return 'day_after_tomorrow'
 
 
-def get_patient(appt):
+def get_patient_for_user(appt, user, access_token):
     patient = appt['patient']
     p = None
     try:
         p = Patient.objects.get(drchrono_id=patient)
     except Patient.DoesNotExist:
-        patient_uri = patients_url + '/' + str(patient)
+        patient_uri = drchrono_base_url + patients_url + '/' + str(patient)
         patient_data = requests.get(
             patient_uri,
-            headers={'Authorization': 'Bearer %s' % request.session[
-                'access_token']}
+            headers={'Authorization': 'Bearer %s' % access_token}
         ).json()
         p = Patient()
         p.drchrono_id = patient
@@ -69,7 +72,7 @@ def get_patient(appt):
         p.race = patient_data.get('race')
         p.photo = patient_data.get('photo')
         p.drchrono_doctor_id = patient_data.get('doctor')
-        p.user = request.user
+        p.user_id = user.id
         p.save()
     return p
 
@@ -84,7 +87,7 @@ def get_bitly_url(request, user, patient):
         parsed_url = urlparse(request.build_absolute_uri())
         longurl = parsed_url.scheme + '://' + parsed_url.netloc
         longurl += '/patient_share/user/' + \
-            str(user.id) + '/patient/' + str(patient.id)
+            str(user.id) + '/patient/' + str(patient.id)  # HACK!
         bitly_token = 'ffe71e89efdbfbb4d03a4995a7910cd4e8416ba7'
         bitly_base = 'https://api-ssl.bitly.com/v3/shorten'
         response = requests.get(bitly_base, params={
@@ -95,7 +98,7 @@ def get_bitly_url(request, user, patient):
         if response['status_code'] != 200:
             return longurl
         else:
-            shortened_url = shortened_url['data']
+            shortened_url = response['data']
             UserPatientDocsURL(
                 user=user,
                 patient=patient,
